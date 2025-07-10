@@ -689,7 +689,7 @@ Field Programmable Gate Array (FPGA) :
 
 The basic unit is Configurable Logic Block (CLB) using a Lookup Table (LUT).
 
-![[CLA 1.jpeg]]
+![Alt text](attachments/CLA.jpeg)
 
 ### Ripple Carry Adder :
 
@@ -701,7 +701,7 @@ Carry-Out : AB + AC + BC
 
 A three-input XOR gate is not preferred due to the greater delay. Instead, a two XOR gate structure is used wherein the output of XOR with A and B is fed to the XOR gate with Cin to get sum. Thus, in the second implementation, the delay will be reduced and the output sum will be generated when Cout from previous adder is fed as Cout to current adder.
 
-![[SBA 1.jpeg]]
+![Alt text](attachments/SBA.jpeg)
 #### N-Bit Adder :
 
 - Cascading N Single Bit Adders wherein output carry is fed to next adder as input carry.
@@ -710,7 +710,7 @@ A three-input XOR gate is not preferred due to the greater delay. Instead, a two
 
 - Delay : (N-1)(2 Level Gate Delay) + max(XOR Delay, AND-OR Delay) = N(2 Level Gate Delay)
 
-![[FBA 1.jpeg]]
+![Alt text](attachments/FBA.jpeg)
 
 ### Carry Look Ahead Adder :
 
@@ -730,36 +730,36 @@ However, for larger adders. CLA will generate more delay due to an increase in f
 
 Example (For a 16 Bit Adder) :
 
-![[TLCLA 2.jpeg]]
+![Alt text](attachments/TLCLA.jpeg)
 
-![[TL2 2.jpeg]]
+![Alt text](attachments/TL2.jpeg)
 
-![[LCLA 2.jpeg]]
+![Alt text](attachments/LCLA.jpeg)
 ### Carry Select Adder (Fast Adder) :
 
 A Carry Select Adder is a type of adder  that duplicates the addition - one assuming input carry is 0 and other assuming it to be 1 - but only gives one appropriate output by selecting the correct addition through a multiplexer by using the input carry when it is available.
 
-![[CSA 1.jpeg]]
+![Alt text](attachments/CSA.jpeg)
 
 Unequal Groups :
 
-![[CSAUEG 1.jpeg]]
+![Alt text](attachments/CSAUEG.jpeg)
 
 Equal Groups :
 
-![[CSAEG 1.jpeg]]
+![Alt text](attachments/CSAEG.jpeg)
 ### Multiple Operand Adder :
 
-![[MOA1 1.jpeg]]
+![Alt text](attachments/MOA1.jpeg)
 
-![[MOA2 1.jpeg]]
+![Alt text](attachments/MOA2.jpeg)
 
 
 ## Sequential Circuits :
 
 Sequential circuit is a type of circuit in which output is dependent on both present and past inputs. Essentially, it is a circuit which can "remember" i.e. have a memory, in contrast to earlier combinational circuits whose outputs are dependent only on current inputs. A sequential circuit can be synchronized through a clock signal. 
 
-![[SQC 1.jpeg]]
+![Alt text](attachments/SQC.jpeg)
 
 Building blocks : 
 
@@ -780,16 +780,16 @@ A latch is a basic asynchronous sequential digital circuit with memory capabilit
 An S-R (Set-Reset) Latch is type of latch with two inputs - set and reset and two outputs - Q and Q'. When S = 1 (R=0), output Q = 1 (Q' = 0) and the latch is in the 'set' state. When R = 1 (S=0), output Q = 0  (Q' = 1) and the latch is in the 'reset' state. When both S = 0, R =0, the latch retains its previous state i.e. remembering and storing its previous output. However, when both S = 1, R = 1, the output is undefined and the latch is in "forbidden" state.
 
 
-![[SRL 1.jpeg]]
+![Alt text](attachments/SRL.jpeg)
 
-![[SRLT 1.jpeg]]
+![Alt text](attachments/SRLT.jpeg)
 
 ##### D Latch : 
 
 An D Latch is type of latch with two inputs - data and enable and two outputs - Q and Q'. When Enable = 1, the latch is considered transparent and changes in input D are reflected in output Q.
 When Enable = 0, the latch is considered opaque and it assumes the previous value as output Q which is independent of input D in this state. D-Latches avoid undefined conditions unlike SR Latches.
 
-![[DL 1.jpeg]]
+![Alt text](attachments/DL.jpeg)
 
 ### Flip-flops :
 
@@ -799,28 +799,28 @@ A flip-flop is a basic synchronous sequential digital circuit with memory capabi
 
 An D Flip-Flop is type of flip-flop with two inputs - data and clock and two outputs - Q and Q'. At the rising or falling edge of clock signal, changes in input D are reflected in output Q. Otherwise,  the previous value is the output Q independent of input D in this state. D Flip-Flops moderates the transmission speed allowing the data to be stored for sufficient time to be used elsewhere unlike Level-Triggered D Latches.
 
-![[DFFC 1.jpeg]]
+![Alt text](attachments/DFFC.jpeg)
 
-![[DFF 2.jpeg]]
+![Alt text](attachments/DFF.jpeg)
 
 ##### JK Flip-Flops :
 
 An JK Flip-Flop is type of flip-flop with two inputs - J (set) and K (reset) and two outputs - Q and Q'. When J = 1 (K=0),the flip-flop sets and output Q = 1 (Q' = 0). When K = 1 (J=0),the flip-flop resets and output Q = 0  (Q' = 1). When both J = 0, K =0, the flip-flop retains its previous state. When both J = 1, K = 1, the flip-flop toggles or inverts its output. All output changes only appear at the edge of a synchronizing clock signal.
 
-![[JKFFC 1.jpeg]]
+![Alt text](attachments/JKFFC.jpeg)
 
-![[JKFF 1.jpeg]]
+![Alt text](attachments/JKFF.jpeg)
 
 
 ##### Master-Slave Flip-Flops :
 
 A master-slave flip-flop is a synchronized sequential circuit consisting of two flip-flops : master and slave - output of master is given as the input to the slave. The master flip-flop is connected to the clock signal while the slave flip-flop is connected to the inverted flip-flop. When the clock signal is active, the master flip-flop is enabled and samples the input data into its output while the slave flip-flop is disabled. When the clock signal is inactive, the slave flip-flop is enabled and samples the input data (output of master flip-flop) into its output while the master flip-flop is disabled Master-Slave Flip-Flops are stable circuits that prevent undefined/race conditions.
 
-![[MSFF 1.jpeg]]
+![Alt text](attachments/MSFF.jpeg)
 
 #### State/Next/Characteristic Equations :
 
-![[ALLFF 1.jpeg]]
+![Alt text](attachments/ALLFF.jpeg)
 
 
 ### Counters :
