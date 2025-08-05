@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1754236306" />
+    <testcase name="test_cache_storage" classname="test_cache_storage" file="/home/shashvat/month_two/test_cache_storage.py" lineno="6" time="0.003516674041748047" sim_time_ns="140.001" ratio_time="39810.62741044068" />
+  </testsuite>
+</testsuites>

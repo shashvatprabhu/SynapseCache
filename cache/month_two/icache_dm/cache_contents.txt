@@ -1,0 +1,7 @@
+Set 0:
+  Word[0] = 0xDEADBEEF
+  Word[1] = 0xCAFEBABE
+  Word[2] = 0x12345678
+  Word[3] = 0x0BADF00D
+  Tag = 0xAB
+  Valid = 1
