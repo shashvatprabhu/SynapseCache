@@ -59,9 +59,11 @@ module cache_controller #(
         if (reset) begin
             state <= IDLE;
             saved_address <= 0;
+            
         end else begin
             state <= next_state;
 
+            // Save address after memory request is accepted
             if (state == READ_MEM && !MEM_BUSYWAIT)
                 saved_address <= CPU_ADDRESS;
         end
@@ -110,53 +112,40 @@ module cache_controller #(
         CACHE_WRITETAG   = 0;
         CACHE_WRITEVALID = 0;
 
-        if (reset) begin
-            CPU_BUSYWAIT     = 0;
-            MEM_READ_REQ     = 0;
-            CPU_INSTR        = 32'h00000000;
-            MEM_ADDRESS      = 0;
-            COMPARE_EN       = 0;
-            WRITE_ENABLE     = 0;
-            CACHE_ADDRESS    = 0;
-            CACHE_WRITEDATA  = 0;
-            CACHE_WRITETAG   = 0;
-            CACHE_WRITEVALID = 0;
-        end else begin
-            case (state)
-                IDLE: begin
-                    COMPARE_EN = 1;
-                    if (CPU_READ) begin
-                        CPU_BUSYWAIT = 1;
-                        CACHE_ADDRESS = CPU_ADDRESS;
-                        if (HIT && VALID) begin
-                            CPU_INSTR = CACHE_READDATA;
-                            CPU_BUSYWAIT = 0;
-                        end
+        case (state)
+            IDLE: begin
+                COMPARE_EN = 1;
+                if (CPU_READ) begin
+                    CPU_BUSYWAIT = 1;
+                    CACHE_ADDRESS = CPU_ADDRESS;
+                    if (HIT && VALID) begin
+                        CPU_INSTR = CACHE_READDATA;
+                        CPU_BUSYWAIT = 0;
                     end
                 end
+            end
 
-                READ_MEM: begin
-                    CPU_BUSYWAIT = 1;
-                    MEM_READ_REQ = 1;
-                    MEM_ADDRESS = {tag, index, {($clog2(BLOCK_SIZE)){1'b0}}}; // aligned
-                end
+            READ_MEM: begin
+                CPU_BUSYWAIT = 1;
+                MEM_READ_REQ = 1;
+                MEM_ADDRESS = {tag, index, {($clog2(BLOCK_SIZE)){1'b0}}}; // aligned
+            end
 
-                UPDATE_CACHE: begin
-                    CPU_BUSYWAIT     = 1;
-                    WRITE_ENABLE     = 1;
-                    CACHE_ADDRESS    = saved_address;
-                    CACHE_WRITEDATA  = MEM_READDATA;
-                    CACHE_WRITETAG   = tag;
-                    CACHE_WRITEVALID = 1;
-                end
+            UPDATE_CACHE: begin
+                CPU_BUSYWAIT     = 1;
+                WRITE_ENABLE     = 1;
+                CACHE_ADDRESS    = saved_address;
+                CACHE_WRITEDATA  = MEM_READDATA;
+                CACHE_WRITETAG   = tag;
+                CACHE_WRITEVALID = 1;
+            end
 
-                WAIT_READ: begin
-                    CPU_BUSYWAIT = 1;
-                    CACHE_ADDRESS = saved_address;
-                    CPU_INSTR = CACHE_READDATA;
-                end
-            endcase
-        end
+            WAIT_READ: begin
+                CPU_BUSYWAIT = 1;
+                CACHE_ADDRESS = saved_address;
+                CPU_INSTR = CACHE_READDATA;
+            end
+        endcase
     end
 
 endmodule

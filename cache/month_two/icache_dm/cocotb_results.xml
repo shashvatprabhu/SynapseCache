@@ -1,6 +1,6 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1754392536" />
-    <testcase name="test_cache_storage" classname="test_cache_storage" file="/home/shashvat/month_two/test_cache_storage.py" lineno="1" time="0.005848884582519531" sim_time_ns="240.001" ratio_time="41033.63583499103" />
+    <property name="random_seed" value="1754491978" />
+    <testcase name="test_cache_controller" classname="test_cache_controller" file="/home/shashvat/month_two/icache_dm/test_cache_controller.py" lineno="6" time="0.0058841705322265625" sim_time_ns="220.001" ratio_time="37388.617273257696" />
   </testsuite>
 </testsuites>

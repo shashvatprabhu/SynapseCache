@@ -1,21 +1,32 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
-import os
-
+import random
 
 
 @cocotb.test()
-async def test_cache_storage(dut):
+async def test_cache_storage_stress_with_reuse(dut):
     """
-    Cocotb testbench for verifying cache_storage module.
+    Stress test with increased hit probability by reusing past write addresses.
     """
 
-    # Start a 100MHz clock
+    INDEX_BITS = 8
+    TAG_BITS = 20
+    WORD_WIDTH = 32
+    NUM_ITERATIONS = 1000
+    REUSE_PROBABILITY = 0.9  # 60% chance to reuse a past write
+
+    def make_address(tag, index):
+        return (tag << INDEX_BITS) | index
+
+    # Reference model
+    cache_model = {}
+    written_addresses = []  # (tag, index, data)
+
+    # Init
     clock = Clock(dut.clk, 10, units="ns")
     cocotb.start_soon(clock.start())
 
-    # Reset the DUT
     dut.reset.value = 1
     dut.read.value = 0
     dut.write.value = 0
@@ -25,69 +36,62 @@ async def test_cache_storage(dut):
     dut.reset.value = 0
     await RisingEdge(dut.clk)
 
-    cocotb.log.info("Test: Writing a block to set 0, tag = 0xAB")
+    cocotb.log.info("🚀 Starting stress test with reuse")
 
-    # Compose a 128-bit (4×32) write block
-    words = [0xDEADBEEF, 0xCAFEBABE, 0x12345678, 0x0BADF00D]
-    write_block = 0
-    for i, word in enumerate(reversed(words)):  # word[0] = lowest offset
-        write_block = (write_block << 32) | word
+    hit_count = 0
+    miss_count = 0
 
-    # Set 0 = index 0, offset = 0, tag = 0xAB
-    address = (0xAB << (4 + 2)) | (0 << 2) | 0  # tag:0xAB, index:0, offset:0
-    dut.address.value = address
-    dut.write_block.value = write_block
-    dut.write.value = 1
-    await RisingEdge(dut.clk)
-    dut.write.value = 0
-    await RisingEdge(dut.clk)
+    for i in range(NUM_ITERATIONS):
+        is_write = random.choice([True, False])
 
-    cocotb.log.info("Test: Reading back word[0] from same set and tag")
+        if is_write or not written_addresses or random.random() > REUSE_PROBABILITY:
+            # Generate a fresh random tag/index
+            tag = random.randint(0, (1 << TAG_BITS) - 1)
+            index = random.randint(0, (1 << INDEX_BITS) - 1)
+            data = random.getrandbits(WORD_WIDTH)
+        else:
+            # Reuse previous write address (to increase hit chance)
+            tag, index, data = random.choice(written_addresses)
 
-    # Read from offset = 0 (i.e., lowest word in the block)
-    dut.address.value = address
-    dut.read.value = 1
-    await RisingEdge(dut.clk)
-    dut.read.value = 0
-    await RisingEdge(dut.clk)
+        address = make_address(tag, index)
+        dut.address.value = address
 
-    assert dut.hit.value == 1, "Expected a cache hit"
-    assert dut.read_data.value == words[0], f"Expected {hex(words[0])}, got {hex(int(dut.read_data.value))}"
+        if is_write:
+            # Perform write
+            dut.write.value = 1
+            dut.write_block.value = data
+            await RisingEdge(dut.clk)
+            dut.write.value = 0
+            await RisingEdge(dut.clk)
 
-    cocotb.log.info("Test: Reading from same index but different tag (expect miss)")
+            cache_model[index] = (True, tag, data)
+            written_addresses.append((tag, index, data))
 
-    address_miss = (0xCD << (4 + 2)) | (0 << 2) | 0  # same index, different tag
-    dut.address.value = address_miss
-    dut.read.value = 1
-    await RisingEdge(dut.clk)
-    dut.read.value = 0
-    await RisingEdge(dut.clk)
+            cocotb.log.info(f"[{i:03}] WRITE tag=0x{tag:X}, idx={index:02}, data=0x{data:08X}")
 
-    assert dut.hit.value == 0, "Expected a cache miss"
+        else:
+            # Perform read
+            dut.read.value = 1
+            await RisingEdge(dut.clk)
+            dut.read.value = 0
+            await RisingEdge(dut.clk)
 
-    cocotb.log.info("Test: Reading other offsets from valid block")
+            valid, expected_tag, expected_data = cache_model.get(index, (False, 0, 0))
+            if valid and expected_tag == tag:
+                assert dut.hit.value == 1, f"[{i:03}] ❌ Expected hit, got miss"
+                assert dut.read_data.value == expected_data, (
+                    f"[{i:03}] ❌ Data mismatch! Expected 0x{expected_data:08X}, got {hex(int(dut.read_data.value))}"
+                )
+                hit_count += 1
+                cocotb.log.info(f"[{i:03}] READ ✅ HIT tag=0x{tag:X}, idx={index:02}, data=0x{expected_data:08X}")
+            else:
+                assert dut.hit.value == 0, f"[{i:03}] ❌ Expected miss, got hit"
+                miss_count += 1
+                cocotb.log.info(f"[{i:03}] READ ✅ MISS tag=0x{tag:X}, idx={index:02}")
 
-    for offset in range(1, 4):
-        addr = (0xAB << (4 + 2)) | (0 << 2) | offset
-        dut.address.value = addr
-        dut.read.value = 1
-        await RisingEdge(dut.clk)
-        dut.read.value = 0
-        await RisingEdge(dut.clk)
-        assert dut.hit.value == 1, f"Expected hit at offset {offset}"
-        assert dut.read_data.value == words[offset], f"Offset {offset} data mismatch"
+    total = hit_count + miss_count
+    cocotb.log.info(f"\n📊 Total Accesses: {total}")
+    cocotb.log.info(f"✅ Hits : {hit_count} ({(hit_count / total) * 100:.2f}%)")
+    cocotb.log.info(f"❌ Misses : {miss_count} ({(miss_count / total) * 100:.2f}%)\n")
 
-    cocotb.log.info("Test: Dumping memory contents to cache_contents.txt")
-
-    # Only dump set 0 (since we only wrote to that)
-    dump_path = "cache_contents.txt"
-    with open(dump_path, "w") as f:
-        f.write(f"Set 0:\n")
-        for i in range(4):
-            f.write(f"  Word[{i}] = 0x{words[i]:08X}\n")
-        f.write(f"  Tag = 0xAB\n")
-        f.write(f"  Valid = 1\n")
-
-    cocotb.log.info("✅ All tests passed. Check 'cache_contents.txt' for final dump.")
-
-    await Timer(100, units='ns')
+    cocotb.log.info("🎉 Stress test with reuse completed ✅")
