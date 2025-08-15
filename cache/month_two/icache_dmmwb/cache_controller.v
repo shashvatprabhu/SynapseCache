@@ -6,7 +6,7 @@ module cache_controller #(
     parameter BLOCK_SIZE = 4,
     parameter INDEX_WIDTH = 5,
     parameter TAG_WIDTH = ADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE)
-)(
+    )(
     input clk,
     input reset,
 

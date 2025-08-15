@@ -2,8 +2,8 @@
 
 module cache_storage #(
     parameter WORD_WIDTH  = 32,    // Width of each instruction
-    parameter INDEX_BITS  = 8,     // Number of bits used for index (e.g., 2^4 = 16 sets)
-    parameter TAG_BITS    = 20     // Remaining bits in address after index
+    parameter INDEX_BITS  = 4,     // Number of bits used for index (e.g., 2^4 = 16 sets)
+    parameter TAG_BITS    = 24     // Remaining bits in address after index
 )(
     input                        clk,
     input                        reset,

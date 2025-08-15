@@ -36,13 +36,13 @@ void Vtop___024root__trace_chg_0_sub_0(Vtop___024root* vlSelf, VerilatedVcd::Buf
     bufp->chgBit(oldp+10,(vlSelfRef.MEM_READDATA_VALID));
     bufp->chgBit(oldp+11,(vlSelfRef.HIT));
     bufp->chgIData(oldp+12,(vlSelfRef.CACHE_READDATA),32);
-    bufp->chgIData(oldp+13,(vlSelfRef.STORED_TAG),25);
+    bufp->chgIData(oldp+13,(vlSelfRef.STORED_TAG),24);
     bufp->chgBit(oldp+14,(vlSelfRef.VALID));
     bufp->chgBit(oldp+15,(vlSelfRef.COMPARE_EN));
     bufp->chgBit(oldp+16,(vlSelfRef.WRITE_ENABLE));
     bufp->chgIData(oldp+17,(vlSelfRef.CACHE_ADDRESS),32);
     bufp->chgIData(oldp+18,(vlSelfRef.CACHE_WRITEDATA),32);
-    bufp->chgIData(oldp+19,(vlSelfRef.CACHE_WRITETAG),25);
+    bufp->chgIData(oldp+19,(vlSelfRef.CACHE_WRITETAG),24);
     bufp->chgBit(oldp+20,(vlSelfRef.CACHE_WRITEVALID));
     bufp->chgBit(oldp+21,(vlSelfRef.cache_controller__DOT__clk));
     bufp->chgBit(oldp+22,(vlSelfRef.cache_controller__DOT__reset));
@@ -57,20 +57,20 @@ void Vtop___024root__trace_chg_0_sub_0(Vtop___024root* vlSelf, VerilatedVcd::Buf
     bufp->chgBit(oldp+31,(vlSelfRef.cache_controller__DOT__MEM_READDATA_VALID));
     bufp->chgBit(oldp+32,(vlSelfRef.cache_controller__DOT__HIT));
     bufp->chgIData(oldp+33,(vlSelfRef.cache_controller__DOT__CACHE_READDATA),32);
-    bufp->chgIData(oldp+34,(vlSelfRef.cache_controller__DOT__STORED_TAG),25);
+    bufp->chgIData(oldp+34,(vlSelfRef.cache_controller__DOT__STORED_TAG),24);
     bufp->chgBit(oldp+35,(vlSelfRef.cache_controller__DOT__VALID));
     bufp->chgBit(oldp+36,(vlSelfRef.cache_controller__DOT__COMPARE_EN));
     bufp->chgBit(oldp+37,(vlSelfRef.cache_controller__DOT__WRITE_ENABLE));
     bufp->chgIData(oldp+38,(vlSelfRef.cache_controller__DOT__CACHE_ADDRESS),32);
     bufp->chgIData(oldp+39,(vlSelfRef.cache_controller__DOT__CACHE_WRITEDATA),32);
-    bufp->chgIData(oldp+40,(vlSelfRef.cache_controller__DOT__CACHE_WRITETAG),25);
+    bufp->chgIData(oldp+40,(vlSelfRef.cache_controller__DOT__CACHE_WRITETAG),24);
     bufp->chgBit(oldp+41,(vlSelfRef.cache_controller__DOT__CACHE_WRITEVALID));
     bufp->chgCData(oldp+42,(vlSelfRef.cache_controller__DOT__state),2);
     bufp->chgCData(oldp+43,(vlSelfRef.cache_controller__DOT__next_state),2);
     bufp->chgIData(oldp+44,(vlSelfRef.cache_controller__DOT__saved_address),32);
-    bufp->chgIData(oldp+45,(vlSelfRef.cache_controller__DOT__tag),25);
+    bufp->chgIData(oldp+45,(vlSelfRef.cache_controller__DOT__tag),24);
     bufp->chgCData(oldp+46,(vlSelfRef.cache_controller__DOT__index),5);
-    bufp->chgCData(oldp+47,(vlSelfRef.cache_controller__DOT__offset),2);
+    bufp->chgCData(oldp+47,(vlSelfRef.cache_controller__DOT__offset),3);
 }
 
 void Vtop___024root__trace_cleanup(void* voidSelf, VerilatedVcd* /*unused*/) {

@@ -40,7 +40,7 @@ VL_INLINE_OPT void Vtop___024root___ico_sequent__TOP__0(Vtop___024root* vlSelf) 
         = vlSelfRef.CACHE_READDATA;
     vlSelfRef.cache_controller__DOT__STORED_TAG = vlSelfRef.STORED_TAG;
     vlSelfRef.cache_controller__DOT__VALID = vlSelfRef.VALID;
-    vlSelfRef.cache_controller__DOT__offset = (3U & vlSelfRef.CPU_ADDRESS);
+    vlSelfRef.cache_controller__DOT__offset = (7U & vlSelfRef.CPU_ADDRESS);
     vlSelfRef.cache_controller__DOT__CACHE_WRITEVALID = 0U;
     vlSelfRef.cache_controller__DOT__WRITE_ENABLE = 0U;
     vlSelfRef.cache_controller__DOT__COMPARE_EN = 0U;
@@ -58,9 +58,9 @@ VL_INLINE_OPT void Vtop___024root___ico_sequent__TOP__0(Vtop___024root* vlSelf) 
     vlSelfRef.cache_controller__DOT__CPU_INSTR = 0U;
     vlSelfRef.cache_controller__DOT__index = (0x1fU 
                                               & (vlSelfRef.CPU_ADDRESS 
-                                                 >> 2U));
+                                                 >> 3U));
     vlSelfRef.cache_controller__DOT__tag = (vlSelfRef.CPU_ADDRESS 
-                                            >> 7U);
+                                            >> 8U);
     if (vlSelfRef.reset) {
         vlSelfRef.cache_controller__DOT__CACHE_WRITEVALID = 0U;
         vlSelfRef.CACHE_WRITEVALID = vlSelfRef.cache_controller__DOT__CACHE_WRITEVALID;
@@ -158,8 +158,8 @@ VL_INLINE_OPT void Vtop___024root___ico_sequent__TOP__0(Vtop___024root* vlSelf) 
             if ((1U & (IData)(vlSelfRef.cache_controller__DOT__state))) {
                 vlSelfRef.cache_controller__DOT__MEM_ADDRESS 
                     = ((vlSelfRef.cache_controller__DOT__tag 
-                        << 7U) | ((IData)(vlSelfRef.cache_controller__DOT__index) 
-                                  << 2U));
+                        << 8U) | ((IData)(vlSelfRef.cache_controller__DOT__index) 
+                                  << 3U));
             }
         }
     }
@@ -295,8 +295,8 @@ VL_INLINE_OPT void Vtop___024root___nba_sequent__TOP__0(Vtop___024root* vlSelf) 
                 vlSelfRef.cache_controller__DOT__MEM_READ_REQ = 1U;
                 vlSelfRef.cache_controller__DOT__MEM_ADDRESS 
                     = ((vlSelfRef.cache_controller__DOT__tag 
-                        << 7U) | ((IData)(vlSelfRef.cache_controller__DOT__index) 
-                                  << 2U));
+                        << 8U) | ((IData)(vlSelfRef.cache_controller__DOT__index) 
+                                  << 3U));
             }
         }
     }
@@ -436,7 +436,7 @@ void Vtop___024root___eval_debug_assertions(Vtop___024root* vlSelf) {
         Verilated::overWidthError("MEM_READDATA_VALID");}
     if (VL_UNLIKELY(((vlSelfRef.HIT & 0xfeU)))) {
         Verilated::overWidthError("HIT");}
-    if (VL_UNLIKELY(((vlSelfRef.STORED_TAG & 0xfe000000U)))) {
+    if (VL_UNLIKELY(((vlSelfRef.STORED_TAG & 0xff000000U)))) {
         Verilated::overWidthError("STORED_TAG");}
     if (VL_UNLIKELY(((vlSelfRef.VALID & 0xfeU)))) {
         Verilated::overWidthError("VALID");}

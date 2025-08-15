@@ -1,0 +1,8 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1755251905" />
+    <testcase name="test_icache_controller" classname="test_cache_controller" file="/home/shashvat/month_two/icache_dm/icache_dmm/test_cache_controller.py" lineno="6" time="0.002035379409790039" sim_time_ns="50.001" ratio_time="24565.93584444184">
+      <failure message="Test failed with RANDOM_SEED=1755251905" />
+    </testcase>
+  </testsuite>
+</testsuites>

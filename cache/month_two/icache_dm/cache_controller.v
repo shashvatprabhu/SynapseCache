@@ -3,7 +3,7 @@
 module cache_controller #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32,
-    parameter BLOCK_SIZE = 4,
+    parameter BLOCK_SIZE = 8,
     parameter INDEX_WIDTH = 5,
     parameter TAG_WIDTH = ADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE)
 )(

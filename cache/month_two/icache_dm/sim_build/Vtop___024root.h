@@ -41,7 +41,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     CData/*1:0*/ cache_controller__DOT__state;
     CData/*1:0*/ cache_controller__DOT__next_state;
     CData/*4:0*/ cache_controller__DOT__index;
-    CData/*1:0*/ cache_controller__DOT__offset;
+    CData/*2:0*/ cache_controller__DOT__offset;
     CData/*0:0*/ __VstlFirstIteration;
     CData/*0:0*/ __VicoFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
@@ -52,21 +52,21 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     VL_OUT(MEM_ADDRESS,31,0);
     VL_IN(MEM_READDATA,31,0);
     VL_IN(CACHE_READDATA,31,0);
-    VL_IN(STORED_TAG,24,0);
+    VL_IN(STORED_TAG,23,0);
     VL_OUT(CACHE_ADDRESS,31,0);
     VL_OUT(CACHE_WRITEDATA,31,0);
-    VL_OUT(CACHE_WRITETAG,24,0);
+    VL_OUT(CACHE_WRITETAG,23,0);
     IData/*31:0*/ cache_controller__DOT__CPU_ADDRESS;
     IData/*31:0*/ cache_controller__DOT__CPU_INSTR;
     IData/*31:0*/ cache_controller__DOT__MEM_ADDRESS;
     IData/*31:0*/ cache_controller__DOT__MEM_READDATA;
     IData/*31:0*/ cache_controller__DOT__CACHE_READDATA;
-    IData/*24:0*/ cache_controller__DOT__STORED_TAG;
+    IData/*23:0*/ cache_controller__DOT__STORED_TAG;
     IData/*31:0*/ cache_controller__DOT__CACHE_ADDRESS;
     IData/*31:0*/ cache_controller__DOT__CACHE_WRITEDATA;
-    IData/*24:0*/ cache_controller__DOT__CACHE_WRITETAG;
+    IData/*23:0*/ cache_controller__DOT__CACHE_WRITETAG;
     IData/*31:0*/ cache_controller__DOT__saved_address;
-    IData/*24:0*/ cache_controller__DOT__tag;
+    IData/*23:0*/ cache_controller__DOT__tag;
     IData/*31:0*/ __VactIterCount;
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
@@ -83,9 +83,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     static constexpr CData/*1:0*/ cache_controller__DOT__WAIT_READ = 3U;
     static constexpr IData/*31:0*/ cache_controller__DOT__ADDR_WIDTH = 0x00000020U;
     static constexpr IData/*31:0*/ cache_controller__DOT__DATA_WIDTH = 0x00000020U;
-    static constexpr IData/*31:0*/ cache_controller__DOT__BLOCK_SIZE = 4U;
+    static constexpr IData/*31:0*/ cache_controller__DOT__BLOCK_SIZE = 8U;
     static constexpr IData/*31:0*/ cache_controller__DOT__INDEX_WIDTH = 5U;
-    static constexpr IData/*31:0*/ cache_controller__DOT__TAG_WIDTH = 0x00000019U;
+    static constexpr IData/*31:0*/ cache_controller__DOT__TAG_WIDTH = 0x00000018U;
 
     // CONSTRUCTORS
     Vtop___024root(Vtop__Syms* symsp, const char* v__name);
