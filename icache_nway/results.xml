@@ -1,0 +1,16 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1755626646" />
+    <testcase name="test_basic_functionality" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="224" time="0.01703047752380371" sim_time_ns="740.001" ratio_time="43451.57080684857" />
+    <testcase name="test_round_robin_replacement" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="256" time="0.024987459182739258" sim_time_ns="1230.001" ratio_time="49224.7327351176" />
+    <testcase name="test_associativity_benefits" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="304" time="0.02043771743774414" sim_time_ns="990.0010000000002" ratio_time="48439.90054249785" />
+    <testcase name="test_hot_spot_access" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="344" time="0.05143308639526367" sim_time_ns="2310.0009999999997" ratio_time="44912.74317562092" />
+    <testcase name="test_conflict_miss_reduction" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="372" time="0.05605483055114746" sim_time_ns="2730.001" ratio_time="48702.33257611937" />
+    <testcase name="test_sequential_access_pattern" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="403" time="0.18769598007202148" sim_time_ns="9630.001" ratio_time="51306.378518628044" />
+    <testcase name="test_cache_capacity_stress" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="428" time="3.2712514400482178" sim_time_ns="168630.00100000002" ratio_time="51549.079638315554" />
+    <testcase name="test_random_access_pattern" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="459" time="0.319105863571167" sim_time_ns="15030.00099999999" ratio_time="47100.35983606424" />
+    <testcase name="test_performance_characterization" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="484" time="0.22173357009887695" sim_time_ns="10410.00099999999" ratio_time="46948.24060857312" />
+    <testcase name="test_replacement_fairness" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="525" time="0.0748891830444336" sim_time_ns="3630.0010000000184" ratio_time="48471.63305074712" />
+    <testcase name="test_final_summary" classname="test_icache_nway" file="/home/shashvat/all_cache/icache_nway/rtl/test_icache_nway.py" lineno="572" time="0.12275147438049316" sim_time_ns="5910.000999999989" ratio_time="48146.06936353969" />
+  </testsuite>
+</testsuites>
