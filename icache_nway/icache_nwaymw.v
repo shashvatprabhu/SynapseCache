@@ -7,7 +7,7 @@ module icache_nway_multiword #(
     parameter DATA_WIDTH    = 32,
     parameter CACHE_SIZE    = 1024,
     parameter ASSOCIATIVITY = 4,
-    parameter BLOCK_SIZE    = 4
+    parameter BLOCK_SIZE    = 2
 )(
     input  wire                    clk,
     input  wire                    rst_n,
@@ -22,7 +22,7 @@ module icache_nway_multiword #(
     // Memory Interface
     output reg                     mem_req,
     output reg  [ADDR_WIDTH-1:0]   mem_addr,
-    output reg  [BLOCK_SIZE-1:0]   mem_burst_len,
+    output reg  [$clog2(BLOCK_SIZE):0] mem_burst_len,  // Dynamic width based on BLOCK_SIZE
     input  wire [DATA_WIDTH-1:0]   mem_data,
     input  wire                    mem_ready,
     input  wire                    mem_valid,
@@ -39,7 +39,7 @@ module icache_nway_multiword #(
     localparam SETS         = BLOCKS / ASSOCIATIVITY;
     localparam SET_BITS     = $clog2(SETS);
     localparam BLOCK_OFFSET_BITS = $clog2(BLOCK_SIZE);
-    localparam BYTE_OFFSET_BITS  = 2;
+    localparam BYTE_OFFSET_BITS  = $clog2(DATA_WIDTH/8);  // Dynamic based on DATA_WIDTH
     localparam TAG_BITS     = ADDR_WIDTH - SET_BITS - BLOCK_OFFSET_BITS - BYTE_OFFSET_BITS;
     localparam WAY_BITS     = (ASSOCIATIVITY > 1) ? $clog2(ASSOCIATIVITY) : 1;
     
@@ -179,6 +179,7 @@ module icache_nway_multiword #(
                 burst_buffer[burst_word_count] <= mem_data;
                 burst_word_count <= burst_word_count + 1;
                 
+                // Dynamic burst completion check based on BLOCK_SIZE
                 if (mem_last || (burst_word_count == BLOCK_OFFSET_BITS'(BLOCK_SIZE - 1))) begin
                     burst_complete <= 1;
                 end
@@ -241,7 +242,7 @@ module icache_nway_multiword #(
     
     // BLOCK 3: Combinational Memory Interface & Stall Logic
     
-        always @(*) begin
+    always @(*) begin
         mem_req = 0;
         mem_addr = 0;
         mem_burst_len = 0;
@@ -254,7 +255,8 @@ module icache_nway_multiword #(
                     // Start memory request immediately when going to FETCH
                     mem_req = 1;
                     mem_addr = block_addr;  // Use current address, not saved
-                    mem_burst_len = 4'(BLOCK_SIZE - 1);
+                    // Dynamic burst length based on BLOCK_SIZE
+                    mem_burst_len = ($clog2(BLOCK_SIZE)+1)'(BLOCK_SIZE - 1);
                 end
             end
             

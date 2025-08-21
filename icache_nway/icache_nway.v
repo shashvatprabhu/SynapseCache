@@ -6,7 +6,7 @@ module icache_nway #(
     parameter ADDR_WIDTH    = 32,
     parameter DATA_WIDTH    = 32,
     parameter CACHE_SIZE    = 1024,
-    parameter ASSOCIATIVITY = 4
+    parameter ASSOCIATIVITY = 1
 )(
     input  wire                    clk,
     input  wire                    rst_n,

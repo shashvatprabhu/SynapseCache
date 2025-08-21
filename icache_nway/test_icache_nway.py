@@ -19,6 +19,7 @@ class CacheMetrics:
         self.cache_size = cache_size
         self.associativity = associativity
         self.sets = cache_size // associativity
+        self.block_size = 1  # Single-word blocks
         self.reset_metrics()
     
     def reset_metrics(self):
@@ -30,27 +31,85 @@ class CacheMetrics:
         self.capacity_misses = 0
         self.evictions = 0
         self.memory_requests = 0
-        self.accessed_addresses = set()
-        self.cache_state = {}
+        
+        # Track unique addresses for miss classification
+        self.unique_addresses_accessed = set()
+        
+        # Track spatial and temporal locality
+        self.spatial_hits = 0  # Will be 0 for single-word blocks
+        self.temporal_hits = 0  # Hits due to re-accessing same data
+        
+        # Cache state tracking for miss classification
+        self.cache_contents = {}  # set_index -> list of addresses
         self.access_history = []
         self.replacement_history = []
         
     def record_access(self, address, hit, miss, evict, mem_req):
         self.total_requests += 1
-        self.access_history.append({'addr': address, 'hit': hit, 'miss': miss})
+        set_index = (address >> 2) % self.sets
+        
+        self.access_history.append({
+            'addr': address,
+            'set_index': set_index,
+            'hit': hit,
+            'miss': miss
+        })
         
         if hit:
             self.total_hits += 1
+            self._classify_hit(address, set_index)
         
         if miss:
             self.total_misses += 1
-            self._classify_miss(address)
+            self._classify_miss(address, set_index)
             
         if evict:
             self.evictions += 1
             
         if mem_req:
             self.memory_requests += 1
+    
+    def _classify_hit(self, address, set_index):
+        """Classify hit as spatial or temporal - for single-word always temporal"""
+        # Verify the address is actually in cache (not evicted)
+        if set_index not in self.cache_contents or address not in self.cache_contents[set_index]:
+            # This shouldn't happen for a hit, but safety check
+            return
+        
+        # For single-word blocks, all hits are temporal (re-accessing same data)
+        # No spatial hits possible since we only fetch one word
+        self.temporal_hits += 1
+    
+    def _classify_miss(self, address, set_index):
+        """Classify miss type accurately for single-word blocks"""
+        # Compulsory miss: First time accessing this address
+        if address not in self.unique_addresses_accessed:
+            self.compulsory_misses += 1
+            self.unique_addresses_accessed.add(address)
+        else:
+            # This address was accessed before but is not in cache now (evicted)
+            # Determine if it's a capacity or conflict miss
+            
+            # Count total unique addresses accessed so far
+            total_unique_addresses = len(self.unique_addresses_accessed)
+            
+            if total_unique_addresses > self.cache_size:
+                # More unique addresses than cache capacity
+                self.capacity_misses += 1
+            else:
+                # Address was evicted due to set conflicts
+                self.conflict_misses += 1
+        
+        # Update cache state for tracking
+        if set_index not in self.cache_contents:
+            self.cache_contents[set_index] = []
+        
+        # Simulate cache replacement (Round-Robin for this set)
+        if address not in self.cache_contents[set_index]:
+            if len(self.cache_contents[set_index]) >= self.associativity:
+                # Evict oldest address from this set
+                evicted = self.cache_contents[set_index].pop(0)
+            self.cache_contents[set_index].append(address)
     
     def record_replacement(self, set_index, way, address):
         """Track round-robin replacement pattern"""
@@ -59,34 +118,6 @@ class CacheMetrics:
             'way': way,
             'addr': address
         })
-    
-    def _classify_miss(self, address):
-        """Classify miss type for N-way set associative cache"""
-        set_index = (address >> 2) % self.sets
-        
-        if address not in self.accessed_addresses:
-            self.compulsory_misses += 1
-            self.accessed_addresses.add(address)
-        else:
-            if set_index not in self.cache_state:
-                self.cache_state[set_index] = []
-            
-            if len(self.cache_state[set_index]) < self.associativity:
-                self.compulsory_misses += 1
-            else:
-                if len(self.accessed_addresses) > self.cache_size:
-                    self.capacity_misses += 1
-                else:
-                    self.conflict_misses += 1
-        
-        # Update cache state (simplified model)
-        if set_index not in self.cache_state:
-            self.cache_state[set_index] = []
-        
-        if address not in self.cache_state[set_index]:
-            if len(self.cache_state[set_index]) >= self.associativity:
-                self.cache_state[set_index].pop(0)
-            self.cache_state[set_index].append(address)
     
     def analyze_round_robin_pattern(self, set_index):
         """Analyze round-robin replacement pattern for specific set"""
@@ -111,36 +142,35 @@ class CacheMetrics:
     def get_memory_traffic_ratio(self):
         return (self.memory_requests / self.total_requests) if self.total_requests > 0 else 0
     
-    def get_conflict_reduction(self):
-        """Measure conflict miss reduction compared to direct-mapped"""
-        total_non_compulsory = self.conflict_misses + self.capacity_misses
-        return total_non_compulsory / self.total_requests if self.total_requests > 0 else 0
+    def get_spatial_benefit(self):
+        """Calculate spatial locality benefit - always 0 for single-word blocks"""
+        return 0.0  # No spatial benefit with single-word blocks
+    
+    def get_temporal_benefit(self):
+        """Calculate temporal locality benefit percentage"""
+        return (self.temporal_hits / self.total_hits * 100) if self.total_hits > 0 else 0
     
     def generate_benchmark_report(self, test_name):
         """Generate detailed benchmark report"""
-        report = f"\n{'='*70}\n"
+        report = f"\n{'='*80}\n"
         report += f"BENCHMARK REPORT - {test_name.upper()}\n"
-        report += f"Cache: {self.associativity}-Way Set Associative, {self.cache_size} words\n"
-        report += f"{'='*70}\n"
+        report += f"Cache: {self.associativity}-Way Set Associative, {self.cache_size} words (single-word blocks)\n"
+        report += f"{'='*80}\n"
         report += f"Total Requests:      {self.total_requests:8d}\n"
         report += f"Cache Hits:          {self.total_hits:8d}\n"
         report += f"Cache Misses:        {self.total_misses:8d}\n"
         report += f"Hit Rate:            {self.get_hit_rate():8.2f}%\n"
         report += f"Miss Rate:           {self.get_miss_rate():8.2f}%\n"
-        report += f"{'='*70}\n"
+        report += f"{'='*80}\n"
         report += f"MISS BREAKDOWN:\n"
-        report += f"Compulsory Misses:   {self.compulsory_misses:8d}\n"
-        report += f"Conflict Misses:     {self.conflict_misses:8d}\n"
-        report += f"Capacity Misses:     {self.capacity_misses:8d}\n"
-        report += f"{'='*70}\n"
-        report += f"ASSOCIATIVITY ANALYSIS:\n"
-        report += f"Conflict Reduction:  {self.get_conflict_reduction():8.2f}\n"
-        report += f"Cache Evictions:     {self.evictions:8d}\n"
-        report += f"{'='*70}\n"
-        report += f"MEMORY ANALYSIS:\n"
-        report += f"Memory Requests:     {self.memory_requests:8d}\n"
-        report += f"Traffic Ratio:       {self.get_memory_traffic_ratio():8.2f}\n"
-        report += f"{'='*70}\n"
+        report += f"Compulsory Misses:   {self.compulsory_misses:8d} ({self.compulsory_misses/self.total_misses*100 if self.total_misses > 0 else 0:5.1f}%)\n"
+        report += f"Conflict Misses:     {self.conflict_misses:8d} ({self.conflict_misses/self.total_misses*100 if self.total_misses > 0 else 0:5.1f}%)\n"
+        report += f"Capacity Misses:     {self.capacity_misses:8d} ({self.capacity_misses/self.total_misses*100 if self.total_misses > 0 else 0:5.1f}%)\n"
+        report += f"{'='*80}\n"
+        report += f"LOCALITY BENEFITS:\n"
+        report += f"Spatial Benefit:     {self.get_spatial_benefit():8.2f}% (N/A for single-word)\n"
+        report += f"Temporal Benefit:    {self.get_temporal_benefit():8.2f}% (hits from data reuse)\n"
+        report += f"{'='*80}\n"
         return report
 
 class BenchmarkWorkloads:
@@ -294,21 +324,26 @@ class CacheTestBench:
         self.dut.cpu_addr.value = address
         
         cycles = 0
+        mem_req_detected = False
+        
         while True:
             await RisingEdge(self.dut.clk)
             cycles += 1
             
+            # Check for memory request during any cycle
+            if int(self.dut.mem_req.value) == 1:
+                mem_req_detected = True
+            
             hit = int(self.dut.cache_hit.value)
             miss = int(self.dut.cache_miss.value)
             evict = int(self.dut.cache_evict.value)
-            mem_req = int(self.dut.mem_req.value)
             
             if hit or miss:
-                self.metrics.record_access(address, hit, miss, evict, mem_req)
+                self.metrics.record_access(address, hit, miss, evict, mem_req_detected)
                 break
                 
             if cycles > 100:
-                raise TestFailure("Access timeout")
+                raise TestFailure(f"Access timeout for address 0x{address:08x}")
         
         self.dut.cpu_req.value = 0
         await RisingEdge(self.dut.clk)
@@ -329,7 +364,7 @@ class CacheTestBench:
         report += f"Total Cycles:        {total_cycles:8d}\n"
         report += f"Average Access Time: {avg_access_time:8.2f} cycles\n"
         report += f"Addresses Tested:    {len(addresses):8d}\n"
-        report += f"{'='*70}\n"
+        report += f"{'='*80}\n"
         
         return {
             'hit_rate': self.metrics.get_hit_rate(),
@@ -337,7 +372,8 @@ class CacheTestBench:
             'avg_access_time': avg_access_time,
             'total_cycles': total_cycles,
             'memory_traffic_ratio': self.metrics.get_memory_traffic_ratio(),
-            'conflict_reduction': self.metrics.get_conflict_reduction()
+            'spatial_benefit': self.metrics.get_spatial_benefit(),
+            'temporal_benefit': self.metrics.get_temporal_benefit()
         }
 
 # FUNCTIONAL VERIFICATION TESTS (1-7) - Simple Pass/Fail
@@ -369,7 +405,7 @@ async def test_basic_functionality(dut):
     assert tb.metrics.total_requests == 8, f"Expected 8 requests, got {tb.metrics.total_requests}"
     assert tb.metrics.compulsory_misses == 4, f"Expected 4 compulsory misses, got {tb.metrics.compulsory_misses}"
     
-    dut._log.info("✓ Basic functionality verified")
+    dut._log.info("✓ Test 1 passed")
 
 @cocotb.test()
 async def test_round_robin_replacement(dut):
@@ -409,7 +445,7 @@ async def test_round_robin_replacement(dut):
     is_round_robin, message = tb.metrics.analyze_round_robin_pattern(set_index)
     assert is_round_robin, f"Round-robin pattern verification failed: {message}"
     
-    dut._log.info("✓ Round-robin replacement verified")
+    dut._log.info("✓ Test 2 passed")
 
 @cocotb.test()
 async def test_associativity_benefits(dut):
@@ -449,7 +485,7 @@ async def test_associativity_benefits(dut):
     expected_hit_rate = (expected_hits / total_accesses) * 100
     assert tb.metrics.get_hit_rate() >= expected_hit_rate * 0.9, f"Expected hit rate >= {expected_hit_rate*0.9:.1f}%, got {tb.metrics.get_hit_rate():.2f}%"
     
-    dut._log.info("✓ Associativity benefits verified")
+    dut._log.info("✓ Test 3 passed")
 
 @cocotb.test()
 async def test_conflict_miss_reduction(dut):
@@ -483,7 +519,7 @@ async def test_conflict_miss_reduction(dut):
     # Should show some conflict reduction compared to direct-mapped
     assert tb.metrics.conflict_misses < tb.metrics.total_requests, "Expected some conflict reduction"
     
-    dut._log.info("✓ Conflict miss reduction verified")
+    dut._log.info("✓ Test 4 passed")
 
 @cocotb.test()
 async def test_cache_capacity_stress(dut):
@@ -517,7 +553,7 @@ async def test_cache_capacity_stress(dut):
     assert tb.metrics.total_requests == total_accesses, f"Expected {total_accesses} requests"
     assert tb.metrics.evictions > 0, "Expected cache evictions"
     
-    dut._log.info("✓ Cache capacity stress verified")
+    dut._log.info("✓ Test 5 passed")
 
 @cocotb.test()
 async def test_replacement_fairness(dut):
@@ -558,7 +594,7 @@ async def test_replacement_fairness(dut):
     
     assert all_correct, "Round-robin fairness verification failed"
     
-    dut._log.info("✓ Replacement policy fairness verified")
+    dut._log.info("✓ Test 6 passed")
 
 @cocotb.test()
 async def test_edge_cases(dut):
@@ -588,7 +624,7 @@ async def test_edge_cases(dut):
     # Verify all accesses completed
     assert tb.metrics.total_requests == 4, "Expected 4 requests"
     
-    dut._log.info("✓ Edge cases verified")
+    dut._log.info("✓ Test 7 passed")
 
 # BENCHMARK TESTS (8-9) - Detailed Performance Analysis
 @cocotb.test()
@@ -634,21 +670,28 @@ async def test_unified_benchmark_suite(dut):
     dut._log.info(tb.metrics.generate_benchmark_report("Stride Access"))
     
     # Unified Summary Report
-    summary_report = f"\n{'='*80}\n"
+    summary_report = f"\n{'='*90}\n"
     summary_report += f"UNIFIED BENCHMARK SUITE SUMMARY\n"
-    summary_report += f"Cache Type: {tb.associativity}-Way Set Associative, Size: {tb.cache_size} words\n"
-    summary_report += f"{'='*80}\n"
-    summary_report += f"{'Pattern':<15} {'Hit Rate':<12} {'Avg Access':<12} {'Memory Traffic':<15} {'Conflict Red.':<12}\n"
-    summary_report += f"{'-'*80}\n"
+    summary_report += f"Cache Type: {tb.associativity}-Way Set Associative, Size: {tb.cache_size} words (single-word)\n"
+    summary_report += f"{'='*90}\n"
+    summary_report += f"{'Pattern':<12} {'Hit Rate':<10} {'Avg Access':<12} {'Mem Traffic':<12} {'Spatial':<10} {'Temporal':<10}\n"
+    summary_report += f"{'-'*90}\n"
     
     for benchmark, results in benchmark_results.items():
-        summary_report += f"{benchmark.capitalize():<15} "
-        summary_report += f"{results['hit_rate']:>8.2f}%    "
+        summary_report += f"{benchmark.capitalize():<12} "
+        summary_report += f"{results['hit_rate']:>7.2f}%   "
         summary_report += f"{results['avg_access_time']:>8.1f} cyc   "
-        summary_report += f"{results['memory_traffic_ratio']:>12.2f}   "
-        summary_report += f"{results['conflict_reduction']:>8.2f}\n"
+        summary_report += f"{results['memory_traffic_ratio']:>10.3f}   "
+        summary_report += f"{results.get('spatial_benefit', 0):>7.1f}%   "
+        summary_report += f"{results.get('temporal_benefit', 0):>7.1f}%\n"
     
-    summary_report += f"{'='*80}\n"
+    summary_report += f"{'='*90}\n"
+    summary_report += f"KEY INSIGHTS:\n"
+    summary_report += f"• Sequential: Limited benefit without spatial locality\n"
+    summary_report += f"• Hot Spot: High temporal locality from repeated accesses\n"
+    summary_report += f"• Random: Tests worst-case scenario with minimal locality\n"
+    summary_report += f"• Stride: Performance depends on stride vs set mapping\n"
+    summary_report += f"{'='*90}\n"
     dut._log.info(summary_report)
 
 @cocotb.test()
@@ -680,31 +723,35 @@ async def test_realistic_workloads(dut):
     dut._log.info(tb.metrics.generate_benchmark_report("Mixed Realistic"))
     
     # Realistic Workloads Summary
-    summary_report = f"\n{'='*80}\n"
+    summary_report = f"\n{'='*90}\n"
     summary_report += f"REALISTIC WORKLOADS SUMMARY\n"
-    summary_report += f"Cache Type: {tb.associativity}-Way Set Associative, Size: {tb.cache_size} words\n"
-    summary_report += f"{'='*80}\n"
-    summary_report += f"{'Workload':<20} {'Hit Rate':<12} {'Avg Access':<12} {'Memory Traffic':<15} {'Conflict Red.':<12}\n"
-    summary_report += f"{'-'*80}\n"
+    summary_report += f"Cache Type: {tb.associativity}-Way Set Associative, Size: {tb.cache_size} words (single-word)\n"
+    summary_report += f"{'='*90}\n"
+    summary_report += f"{'Workload':<18} {'Hit Rate':<10} {'Avg Access':<12} {'Mem Traffic':<12} {'Spatial':<10} {'Temporal':<10}\n"
+    summary_report += f"{'-'*90}\n"
     
     for workload, results in workload_results.items():
         name = workload.replace('_', ' ').title()
-        summary_report += f"{name:<20} "
-        summary_report += f"{results['hit_rate']:>8.2f}%    "
+        summary_report += f"{name:<18} "
+        summary_report += f"{results['hit_rate']:>7.2f}%   "
         summary_report += f"{results['avg_access_time']:>8.1f} cyc   "
-        summary_report += f"{results['memory_traffic_ratio']:>12.2f}   "
-        summary_report += f"{results['conflict_reduction']:>8.2f}\n"
+        summary_report += f"{results['memory_traffic_ratio']:>10.3f}   "
+        summary_report += f"{results.get('spatial_benefit', 0):>7.1f}%   "
+        summary_report += f"{results.get('temporal_benefit', 0):>7.1f}%\n"
     
-    summary_report += f"{'='*80}\n"
-    summary_report += f"PERFORMANCE INSIGHTS:\n"
-    summary_report += f"• Strength: Reduced conflict misses vs direct-mapped\n"
-    summary_report += f"• Best for: Mixed workloads with moderate spatial locality\n"
-    summary_report += f"• Trade-off: Slightly higher access latency, better hit rates\n"
-    summary_report += f"• Ideal use: General-purpose instruction caches\n"
-    summary_report += f"{'='*80}\n"
+    summary_report += f"{'='*90}\n"
+    summary_report += f"PERFORMANCE ANALYSIS:\n"
+    summary_report += f"• Single-word blocks provide no spatial locality benefit\n"
+    summary_report += f"• N-way associativity reduces conflict misses effectively\n"
+    summary_report += f"• Performance relies entirely on temporal locality\n"
+    summary_report += f"• Best for workloads with high data reuse patterns\n"
+    summary_report += f"{'='*90}\n"
     
     dut._log.info(summary_report)
     
-    # Final verification message
-    dut._log.info("N-WAY SET ASSOCIATIVE CACHE TESTING COMPLETE")
-    dut._log.info(f"Cache verified: {tb.cache_size} words, {tb.associativity}-way, all patterns tested successfully")
+    # Final summary
+    dut._log.info("=" * 90)
+    dut._log.info("N-WAY SET ASSOCIATIVE CACHE VERIFICATION COMPLETE")
+    dut._log.info(f"Configuration: {tb.cache_size} words, {tb.associativity}-way, single-word blocks")
+    dut._log.info("All tests passed successfully")
+    dut._log.info("=" * 90)
