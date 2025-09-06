@@ -1,0 +1,14 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1757181947" />
+    <testcase name="test_basic_functionality" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="380" time="0.0438077449798584" sim_time_ns="1100.001" ratio_time="25109.73802704865" />
+    <testcase name="test_round_robin_replacement" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="410" time="0.03831028938293457" sim_time_ns="630.001" ratio_time="16444.69436664281" />
+    <testcase name="test_associativity_benefits" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="450" time="0.037094831466674805" sim_time_ns="510.0010000000002" ratio_time="13748.573044688828" />
+    <testcase name="test_conflict_miss_reduction" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="490" time="0.04430747032165527" sim_time_ns="870.0009999999997" ratio_time="19635.537612148146" />
+    <testcase name="test_cache_capacity_stress" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="524" time="3.1949074268341064" sim_time_ns="161130.00100000002" ratio_time="50433.3864720665" />
+    <testcase name="test_replacement_fairness" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="558" time="0.062488555908203125" sim_time_ns="1830.0009999999893" ratio_time="29285.378312923338" />
+    <testcase name="test_edge_cases" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="599" time="0.04064035415649414" sim_time_ns="630.0010000000184" ratio_time="15501.858019594722" />
+    <testcase name="test_unified_benchmark_suite" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="630" time="2.268183708190918" sim_time_ns="106140.00099999996" ratio_time="46795.1518286216" />
+    <testcase name="test_realistic_workloads" classname="test_icache_nway" file="/home/shashvat/SynapseCache/tests/test_icache_nway.py" lineno="697" time="1.688389539718628" sim_time_ns="84690.00100000005" ratio_time="50160.22606614451" />
+  </testsuite>
+</testsuites>

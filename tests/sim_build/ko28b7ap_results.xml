@@ -1,0 +1,12 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1757178838" />
+    <testcase name="test_basic_functionality" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="294" time="0.026128053665161133" sim_time_ns="1100.001" ratio_time="42100.380460666674" />
+    <testcase name="test_conflict_miss_analysis" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="324" time="0.05728316307067871" sim_time_ns="3030.001" ratio_time="52895.14121734932" />
+    <testcase name="test_cache_capacity_stress" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="353" time="2.8174335956573486" sim_time_ns="161130.001" ratio_time="57190.345585556206" />
+    <testcase name="test_replacement_and_eviction" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="387" time="0.011182308197021484" sim_time_ns="480.0009999999893" ratio_time="42925.03761681709" />
+    <testcase name="test_edge_cases" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="421" time="0.014709234237670898" sim_time_ns="630.0010000000184" ratio_time="42830.30576714608" />
+    <testcase name="test_unified_benchmark_suite" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="452" time="1.8575217723846436" sim_time_ns="106140.00099999999" ratio_time="57140.64975062979" />
+    <testcase name="test_realistic_workloads" classname="test_icache_dm" file="/home/shashvat/SynapseCache/tests/test_icache_dm.py" lineno="511" time="1.7032783031463623" sim_time_ns="87330.00099999999" ratio_time="51271.71574878902" />
+  </testsuite>
+</testsuites>
